@@ -5,9 +5,7 @@ import by.magofrays.dto.Magazine;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -67,8 +65,21 @@ public class MagazineTest {
 
     @Test
     public void autoReportAllTest(){
-        for(var magazine: magazineList){
-
+        File file = new File("rouge_scores.txt");
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
+            writer.write("ROUGE-1\tROUGE-2\tROUGE-L\n");
+            for (var magazine : magazineList) {
+                List<String> sentences = autoReport.getReport(magazine.getText());
+                String result = inputParser.buildText(sentences);
+                RougeMetrics.RougeResult rougeResult = rougeMetrics.computeRouge(result, magazine.getSummary());
+                System.out.println(rougeResult.rouge1() + " " + rougeResult.rouge2() + " " + rougeResult.rougeL());
+                writer.write(String.format("%.4f\t%.4f\t%.4f\n",
+                        rougeResult.rouge1(),
+                        rougeResult.rouge2(),
+                        rougeResult.rougeL()));
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
