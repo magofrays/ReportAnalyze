@@ -53,9 +53,8 @@ public class MagazineTest {
 
     @Test
     public void autoReportTest(){
-        Magazine magazine = magazineList.getFirst();
-        List<String> sentences = autoReport.getReport(magazine.getText());
-        String result = inputParser.buildText(sentences);
+        Magazine magazine = magazineList.get(1);
+        String result = autoReport.getReport(magazine.getText());
         System.out.println(magazine.getSummary());
         System.out.println("===================");
         System.out.println(result);
@@ -69,8 +68,7 @@ public class MagazineTest {
         try(BufferedWriter writer = new BufferedWriter(new FileWriter(file))) {
             writer.write("ROUGE-1\tROUGE-2\tROUGE-L\n");
             for (var magazine : magazineList) {
-                List<String> sentences = autoReport.getReport(magazine.getText());
-                String result = inputParser.buildText(sentences);
+                String result = autoReport.getReport(magazine.getText());
                 RougeMetrics.RougeResult rougeResult = rougeMetrics.computeRouge(result, magazine.getSummary());
                 System.out.println(rougeResult.rouge1() + " " + rougeResult.rouge2() + " " + rougeResult.rougeL());
                 writer.write(String.format("%.4f\t%.4f\t%.4f\n",
