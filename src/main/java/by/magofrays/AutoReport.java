@@ -11,8 +11,9 @@ public class AutoReport {
         inputParserScorer = new InputParserScorer();
     }
 
-    public List<String> getReport(String text){
+    public String getReport(String text){
         List<String> sentences = inputParserScorer.splitSentences(text);
+
         List<List<String>> lemmas = new ArrayList<>();
         for(var sentence: sentences){
             lemmas.add(inputParserScorer.tokenizeWords(sentence));
@@ -24,11 +25,12 @@ public class AutoReport {
         for(Integer sentenceIndex :scores.descendingMap().values()){
             String sentence = sentences.get(sentenceIndex);
             symbolSize += sentence.length();
+            result.put(sentenceIndex, sentence);
             if(symbolSize > maxSize){
                 break;
             }
-            result.put(sentenceIndex, sentence);
         }
-        return new ArrayList<>(result.values());
+        sentences = new ArrayList<>(result.values());
+        return inputParserScorer.buildText(sentences).substring(0, maxSize);
     }
 }

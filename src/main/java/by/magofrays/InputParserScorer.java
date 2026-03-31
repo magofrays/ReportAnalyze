@@ -38,20 +38,37 @@ public class InputParserScorer {
         return sentences;
     }
 
-    public List<String> tokenizeWords(String sentence){
-        sentence = sentence.replaceAll("[.!?:;]", "").toLowerCase();
-        List<String> tokens = new ArrayList<>();
-        for(var word: sentence.split(" ")){
-            if(!STOP_WORDS.contains(word)){
-                tokens.add(word);
+    public String simplifySentence(String sentence){
+        if (sentence == null || sentence.isEmpty()) {
+            return "";
+        }
+
+        String[] words = sentence.split("\\s+");
+        List<String> filteredWords = new ArrayList<>();
+        List<String> tokens = tokenizeWords(sentence);
+        for (int i = 0; i != tokens.size(); i++) {
+            if (!STOP_WORDS.contains(tokens.get(i)) && !tokens.get(i).isEmpty()) {
+                filteredWords.add(words[i]);
             }
         }
-        return tokens;
+
+        if (filteredWords.isEmpty()) {
+            return sentence.substring(0, Math.min(100, sentence.length())) + "...";
+        }
+        return String.join(" ", filteredWords);
+    }
+
+    public List<String> tokenizeWords(String sentence){
+        sentence = sentence.replaceAll("[.,!?;:()\"']", "").toLowerCase();
+        return new ArrayList<>(List.of(sentence.split("\\s+")));
     }
 
     public List<String> lemmatizeWords(List<String> words){
         List<String> lemmas = new ArrayList<>();
         for(var word: words){
+            if(STOP_WORDS.contains(word)){
+               continue;
+            }
             lemmas.add(
                     MorphAnalyzer.getInstance().lemma(word)
             );
@@ -86,9 +103,14 @@ public class InputParserScorer {
     }
 
     public String buildText(List<String> sentences){
-        StringBuilder stringBuilder = new StringBuilder(" ");
-        sentences.forEach(stringBuilder::append);
-        return stringBuilder.toString();
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < sentences.size(); i++) {
+            sb.append(sentences.get(i));
+            if (i < sentences.size() - 1) {
+                sb.append(" ");
+            }
+        }
+        return sb.toString();
     }
 
 }
